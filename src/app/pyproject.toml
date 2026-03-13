@@ -1,0 +1,91 @@
+[tool.poetry]
+name = "cgi.ai-langgraph-agentic-framework"
+version = "0.0.1"
+description = "Fast API hosted LangGraph-based agentic framework for AI applications."
+authors = [
+    "Timothy Crittenden <timothy.crittenden@cgi.com>"
+]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.12"
+apscheduler = "^3.11.0"
+
+# --- Web framework & server ---
+fastapi = ">=0.115.12,<0.116.0"   # API framework
+uvicorn = ">=0.34.3,<0.35.0"      # ASGI server
+python-multipart = ">=0.0.9,<0.1.0"  # Multipart form data support for file uploads
+
+# --- LangChain / LangGraph ecosystem ---
+langchain = "1.0.3"
+langchain-community = "0.4.1"
+langchain-aws = "1.0.0"
+langchain-openai = "1.0.2"
+langchain_mcp_adapters = "0.1.12"
+
+langgraph = "1.0.2"
+langgraph-checkpoint-postgres = "3.0.0"
+
+# --- AWS / Cloud integrations ---
+boto3 = ">=1.38.31,<2.0.0"        # AWS SDK
+openai = "2.7.1"
+
+# --- Database & persistence ---
+psycopg = { extras = ["binary"], version = "^3.2.9" }  # PostgreSQL driver
+
+# --- Configuration & validation ---
+python-dotenv = ">=1.1.0,<2.0.0"  # Env var loader
+pydantic = ">=2.11.5,<3.0.0"      # Data validation & settings management
+
+# --- Networking ---
+httpx = "^0.28.1"                  # Async HTTP client
+
+# --- Observability & logging ---
+ddtrace = "^3.18.0"                # Datadog APM
+structlog = "^24.1.0"              # Structured logging
+nltk = "3.8.1"
+
+# --- Machine Learning ---
+scikit-learn = "^1.7.1"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.11.13"
+rich = "^13.9.4"
+colorama = "^0.4.6"
+# --- Testing ---
+pytest-asyncio = "^1.0.0"          # Async test support
+pytest = "^8.4.1"
+sentence-transformers = "^5.1.0"
+scikit-learn = "^1.7.1"
+rank-bm25 = "^0.2.2"
+rouge-score = "^0.1.2"
+pandas = "^2.3.1"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 160
+
+[tool.ruff.lint]
+select = [
+    "E",      # Error (syntax errors)
+    "F4",     # Pyflakes import-related (F403, F405)  
+    "F6",     # Pyflakes invalid escapes
+    "F7",     # Pyflakes syntax for assert
+    "F8",     # Pyflakes redefinition  
+    "I",      # isort (import sorting)
+    "B",      # flake8-bugbear (logic bugs)
+    "UP",     # pyupgrade (modernization)
+    "TID251",  # Banned API usage
+]
+ignore = [
+    "F401",   # unused-import (handled by Pyright)
+    "F841",   # unused-variable (handled by Pyright)
+]
+
+[tool.ruff.flake8-tidy-imports.banned-api]
+"logging".msg = "Use get_logger from core.logging_config for structured logging"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

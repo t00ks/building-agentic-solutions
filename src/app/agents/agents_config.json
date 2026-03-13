@@ -1,0 +1,122 @@
+[
+  {
+    "name": "knowledge_agent",
+    "description": "Handles knowledge-based queries. This agent responds to queries about concepts, definitions, policy ",
+    "prompt_file": "knowledge_agent.md",
+    "tools": ["knowledge_retrieval"]
+  },
+  {
+    "name": "form_population_agent",
+    "description": "Handles form population requests, this agent can update the form based on user provided data",
+    "prompt_file": "form_population_agent.md",
+    "tools": [],
+    "children": [
+      {
+        "name": "personal_details_agent",
+        "description": "get/create/read/update/delete applicants (personal details).",
+        "prompt_file": "form_population_agent/personal_details_agent.md",
+        "context": [
+          {
+            "property_name": "applicants_formatted",
+            "property_placeholder": "<<APPLICANTS>>"
+          },
+          {
+            "property_name": "user_name",
+            "property_placeholder": "<<CURRENTUSER>>"
+          }
+        ],
+        "tools": [
+          "GetApplicants",
+          "GetApplicant",
+          "CreateApplicant",
+          "UpdateApplicant",
+          "DeleteApplicant"
+        ]
+      },
+      {
+        "name": "financial_dependants_agent",
+        "description": "Manages financial dependants associated with applicants",
+        "prompt_file": "form_population_agent/financial_dependants_agent.md",
+        "context": [
+          {
+            "property_name": "applicants_formatted",
+            "property_placeholder": "<<APPLICANTS>>"
+          },
+          {
+            "property_name": "user_name",
+            "property_placeholder": "<<CURRENTUSER>>"
+          }
+        ],
+        "tools": [
+          "GetDependents",
+          "CreateDependent",
+          "UpdateDependent",
+          "DeleteDependent"
+        ]
+      },
+      {
+        "name": "address_history_agent",
+        "description": "Manages residential addresses and address history for applicants",
+        "prompt_file": "form_population_agent/address_history_agent.md",
+        "context": [
+          {
+            "property_name": "applicants_formatted",
+            "property_placeholder": "<<APPLICANTS>>"
+          },
+          {
+            "property_name": "user_name",
+            "property_placeholder": "<<CURRENTUSER>>"
+          }
+        ],
+        "tools": [
+          "GetAddressHistory",
+          "CreateAddress",
+          "UpdateAddress",
+          "DeleteAddress"
+        ]
+      },
+      {
+        "name": "income_management_agent",
+        "description": "Manages the income sources for an applicant",
+        "prompt_file": "form_population_agent/income_management_agent.md",
+        "context": [
+          {
+            "property_name": "applicants_formatted",
+            "property_placeholder": "<<APPLICANTS>>"
+          },
+          {
+            "property_name": "user_name",
+            "property_placeholder": "<<CURRENTUSER>>"
+          }
+        ],
+        "tools": [
+          "GetIncomeSources",
+          "CreateIncomeSource",
+          "UpdateIncomeSource",
+          "DeleteIncomeSource"
+        ]
+      },
+      {
+        "name": "expenditure_management_agent",
+        "description": "Manages essential expenditure and outgoing costs for applicants",
+        "prompt_file": "form_population_agent/expenditure_management_agent.md",
+        "context": [
+          {
+            "property_name": "applicants_formatted",
+            "property_placeholder": "<<APPLICANTS>>"
+          },
+          {
+            "property_name": "user_name",
+            "property_placeholder": "<<CURRENTUSER>>"
+          }
+        ],
+        "tools": [
+          "GetExpenditures",
+          "CreateExpenditure",
+          "UpdateExpenditure",
+          "DeleteExpenditure"
+        ]
+      }
+    ]
+  }
+]

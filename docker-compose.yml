@@ -1,0 +1,87 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: langgraph-postgres
+    environment:
+      POSTGRES_DB: langgraph
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: supersecretpassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  api:
+    build:
+      context: ./demo
+      dockerfile: api/Dockerfile
+    container_name: langgraph-demo-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://0.0.0.0:8080
+      DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+      ConnectionStrings__PeopleDatabase: Host=postgres;Port=5432;Database=langgraph;Username=postgres;Password=supersecretpassword
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  mcp:
+    build:
+      context: ./demo
+      dockerfile: mcp-server/Dockerfile
+    container_name: langgraph-mcp
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://0.0.0.0:5000
+      DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+      ConnectionStrings__PeopleDatabase: Host=postgres;Port=5432;Database=langgraph;Username=postgres;Password=supersecretpassword
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  ui:
+    build:
+      context: ./demo/ui
+      dockerfile: Dockerfile
+    container_name: langgraph-ui
+    environment:
+      VITE_API_BASE_URL: http://localhost:8080
+    ports:
+      - "5173:5173"
+    depends_on:
+      api:
+        condition: service_started
+
+  app:
+    build:
+      context: ./src/app
+      dockerfile: Dockerfile
+    container_name: langgraph-fastapi
+    environment:
+      PYTHONUNBUFFERED: "1"
+      POSTGRES_URI: postgresql://postgres:supersecretpassword@postgres:5432/langgraph
+      MCP_SERVER_URL: http://mcp:5000
+      ORCHESTRATOR_TEMPERATURE: "0.0"
+      AGENT_TEMPERATURE: "0.0"
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mcp:
+        condition: service_started
+
+volumes:
+  postgres-data:

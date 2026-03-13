@@ -1,0 +1,78 @@
+# AI LangGraph Agentic Framework
+
+End to end reference stack that demonstrates a LangGraph powered assistant backed by a FastAPI orchestrator, MCP tools, a React UI, and a PostgreSQL vector store.
+
+---
+
+## Prerequisites
+- Docker Desktop 4.24+ (or Docker Engine with Compose plugin)
+- Make the helper scripts executable: `chmod +x ./install_pgvector.sh`
+- For the ingestion pipeline: Python 3.12+, Poetry 1.8+
+
+---
+
+## 1. Start Core Services
+1. From the repository root run `docker compose up --build`.
+	- Starts PostgreSQL, the demo .NET API, the MCP server, the FastAPI orchestrator, and the Vite UI.
+	- UI is exposed on `http://localhost:5173`; FastAPI on `http://localhost:8000`.
+2. Leave the stack running while completing the remaining steps.
+
+---
+
+## 2. Install pgvector in PostgreSQL
+1. Identify the Postgres container name (default in `docker-compose.yml` is `langgraph-postgres`).
+2. Execute the helper script (run from repo root):
+	```bash
+	./install_pgvector.sh langgraph-postgres
+	```
+3. Enable the extension inside the container (once per database):
+	```bash
+	docker exec -it langgraph-postgres psql -U postgres -d langgraph -c "CREATE EXTENSION IF NOT EXISTS vector;"
+	```
+4. The database is now ready to store embeddings produced by the ingestion pipeline.
+
+---
+
+## 3. Seed the Vector Store via Ingestion Pipeline
+1. Create a `.env` file in `src/ingestion` (or copy from `.env.example`) with the required variables. Example:
+	```dotenv
+	# AWS settings
+	AWS_ACCESS_KEY_ID=your-aws-access-key
+	AWS_SECRET_ACCESS_KEY=your-aws-secret-key
+	AWS_REGION=eu-west-1
+	BEDROCK_EMBEDDING_MODEL_ID=amazon.titan-embed-text-v2:0
+
+	# Azure OpenAI settings
+	AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
+	AZURE_OPENAI_KEY=your-azure-openai-key
+	AZURE_TEXT_EMBEDDING_DEPLOYMENT=text-embedding-3-large
+	HYPER_SCALER=AZURE
+
+	# PostgreSQL settings
+	DOCUMENT_TABLE_NAME=document_vectors
+	PG_CONNECTION_STRING=postgresql://postgres:supersecretpassword@localhost:5432/langgraph?sslmode=disable
+	```
+	Update each value to match your credentials, preferred hyperscaler (`AZURE` or `AWS`), and database host.
+2. Install dependencies and run the job:
+	```bash
+	cd src/ingestion
+	poetry install
+	poetry run python main.py
+	```
+	- The pipeline downloads source documents, chunks them, generates embeddings, and writes vectors to PostgreSQL.
+3. Re-run the step above whenever new documents need to be ingested.
+
+---
+
+## Verifying the Stack
+- UI: open `http://localhost:5173` and confirm the chat widget loads.
+- API health: `curl http://localhost:8080/people` should return seed data.
+- MCP server: `curl http://localhost:5000/tool-definitions` lists available tools.
+- FastAPI orchestrator: `curl http://localhost:8000/health` confirms service is alive.
+- Database: `docker exec -it langgraph-postgres psql -U postgres -d langgraph -c "\dt"` shows tables including `document_vectors` after ingestion.
+
+---
+
+## Shut Down
+- Stop services with `docker compose down`.
+- Add `--volumes` if you want to clear persisted Postgres data.
