@@ -22,7 +22,6 @@ from core.config import get_config
 from core.exceptions import AgentConfigurationError, AgentProcessingError, AgentResourceError
 from core.logging_config import get_logger
 from services.session_context import CURRENT_MCP_SESSION
-from tools.knowledge_retrieval import knowledge_retrieval
 from tools.tool_update import ToolUpdate
 
 
@@ -57,7 +56,6 @@ class ToolsService:
         self.config = get_config()
 
         self._tools: dict[str, Any] = {
-            "knowledge_retrieval": knowledge_retrieval,
         }
 
         self._mcp_client = MultiServerMCPClient({"populationTools": {"url": self.config.services.mcp_server_url, "transport": "streamable_http"}})

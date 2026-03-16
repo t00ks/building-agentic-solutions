@@ -10,11 +10,13 @@ This agent supports:
 - Custom prompts to define supervisor or standalone behavior
 """
 
-from typing import Annotated
+from collections.abc import AsyncIterator
+from typing import Annotated, Any
 
 from langchain.agents import AgentState, create_agent
 from langchain.agents.middleware import ModelCallLimitMiddleware, ModelRequest, dynamic_prompt
 from langchain_core.language_models.chat_models import BaseChatModel
+from langchain_core.messages import AIMessageChunk, HumanMessage
 from langchain_core.tools import BaseTool, StructuredTool, Tool
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 from langgraph.config import get_stream_writer
@@ -22,12 +24,12 @@ from langgraph.graph.state import CompiledStateGraph
 from langgraph.runtime import get_runtime
 
 from agents.agent_config import AgentConfig
-from agents.agent_context_schema import AgentContextSchema
+from agents.agent_event import AgentEvent
 from agents.agent_update import AgentUpdate, AgentUpdateEvent
 from core.config import get_config
 from core.exceptions import AgentProcessingError
 from core.logging_config import get_logger
-from core.utils import add_date_to_prompt_template, load_prompt_template
+from core.utils import add_date_to_prompt_template, extract_content_as_string, load_prompt_template
 from services.llm_service import get_llm
 from services.tools_service import ToolsService
 
@@ -111,9 +113,7 @@ class Agent:
         )
 
     @classmethod
-    async def create(
-        cls, agent_config: AgentConfig, tools_service: ToolsService, checkpointer: AsyncPostgresSaver
-    ) -> "Agent":
+    async def create(cls, agent_config: AgentConfig, tools_service: ToolsService, checkpointer: AsyncPostgresSaver) -> "Agent":
         """
         Asynchronously creates and configures an Agent instance with child agents.
 
@@ -183,22 +183,17 @@ class Agent:
 
         @dynamic_prompt
         def get_system_prompt(request: ModelRequest) -> str:
-            runtime = get_runtime(AgentContextSchema)
+            runtime = get_runtime()
             system_msg = self._load_prompt(self.agent_config.prompt_file)
             system_msg = add_date_to_prompt_template(system_msg)
 
             if len(self.agent_config.context) > 0:
                 for ctx in self.agent_config.context:
-                    system_msg = system_msg.replace(
-                        ctx.property_placeholder, getattr(runtime.context, ctx.property_name)
-                    )
+                    system_msg = system_msg.replace(ctx.property_placeholder, getattr(runtime.context, ctx.property_name))
 
             return system_msg
 
-        agents_tools = [
-            (await Agent.create(agent, tools_service, checkpointer)).as_tool()
-            for agent in self.agent_config.children or []
-        ]
+        agents_tools = [(await Agent.create(agent, tools_service, checkpointer)).as_tool() for agent in self.agent_config.children or []]
 
         combined_tools = [*self._tools, *agents_tools]
 
@@ -209,6 +204,78 @@ class Agent:
             tools=combined_tools,
             middleware=[get_system_prompt, ModelCallLimitMiddleware(run_limit=self._llm_run_limit)],
             name=self.agent_config.name,
-            context_schema=AgentContextSchema,
             checkpointer=checkpointer,
         )
+
+    async def stream(
+        self,
+        query: str,
+        context: dict[str, Any] | None = None,
+        debug: bool = False,
+    ) -> AsyncIterator[AgentEvent]:
+        """
+        Stream the agent's response to a query, yielding events as they occur.
+
+        This method streams through the agent's graph, handling message chunks,
+        state updates, and custom events from child agents.
+
+        Args:
+            query: The user query to process.
+            context: Optional context dict to pass to the agent graph.
+            debug: Whether to emit debug events.
+
+        Yields:
+            AgentEvent: Events of type "response", "update", "done", or "debug".
+
+        Raises:
+            AgentProcessingError: If the agent graph has not been built or streaming fails.
+        """
+        if self._graph is None:
+            raise AgentProcessingError("agent not built, check logs for errors")
+
+        try:
+            final_response: str = ""
+            current_agent: str = self.agent_config.name
+
+            async for _meta, mode, message_chunk in self._graph.astream(
+                {"messages": [HumanMessage(content=query)]},
+                stream_mode=["messages", "updates", "custom"],
+                context=context or {},
+                subgraphs=True,
+                debug=debug,
+            ):
+                if mode == "updates":
+                    self.logger.debug(message_chunk)
+
+                elif mode == "messages":
+                    if isinstance(message_chunk[0], AIMessageChunk):
+                        text = extract_content_as_string(message_chunk[0])
+                        if text is not None and text.strip():
+                            final_response += text
+                            yield AgentEvent(
+                                event_type="response",
+                                data={"value": text},
+                            )
+
+                elif mode == "custom":
+                    if isinstance(message_chunk, AgentUpdate):
+                        agent_update: AgentUpdate = message_chunk
+                        if agent_update.agent_event == AgentUpdateEvent.START:
+                            current_agent = agent_update.agent_name
+                            yield AgentEvent(event_type="update", data={"agent": agent_update.agent_name})
+                            self.logger.info(f"Switching to agent: {agent_update.agent_name}")
+                        if agent_update.agent_event == AgentUpdateEvent.FINISH:
+                            current_agent = self.agent_config.name
+                            yield AgentEvent(event_type="update", data={"agent": self.agent_config.name})
+                            self.logger.info(f"Switching to agent: {self.agent_config.name}")
+
+                    if debug:
+                        yield AgentEvent(event_type="debug", data=message_chunk)
+
+            yield AgentEvent(
+                event_type="done",
+                data={},
+            )
+        except Exception as e:
+            self.logger.error(f"Error running agent stream: {e}")
+            raise AgentProcessingError("Error running agent stream") from e

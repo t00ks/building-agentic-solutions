@@ -11,7 +11,7 @@ public interface ITool
     WeatherForecast WeatherTool(string location, DateTime date);
     List<FlightOption> FlightSearchTool(string originAirport, string destAirport, DateTime departDate, int maxResults = 3);
     List<HotelOption> HotelSearchTool(string city, DateTime checkIn, DateTime checkOut, int maxResults = 5);
-    List<RestaurantOption> RestaurantSearchTool(string city, string cuisine = null, int maxResults = 5);
+    List<RestaurantOption> RestaurantSearchTool(string city, string? cuisine = null, int maxResults = 5);
     List<LocalEvent> LocalEventsTool(string city, DateTime fromDate, DateTime toDate);
     CurrencyConversion CurrencyTool(string fromCurrency, string toCurrency, decimal amount);
     RouteInfo MapRouteTool(string start, string end, string mode = "walking");

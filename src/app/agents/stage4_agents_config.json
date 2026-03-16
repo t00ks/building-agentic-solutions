@@ -1,0 +1,42 @@
+[
+  {
+    "name": "trip_supervisor",
+    "description": "Supervises the full trip planning workflow. Assigns tasks to specialist agents, validates outputs against budget and safety constraints, and requests rework when validation fails.",
+    "prompt_file": "stage4/trip_supervisor.md",
+    "tools": [
+      "validator_tool",
+      "retry_tool"
+    ],
+    "children": [
+      {
+        "name": "itinerary_agent",
+        "description": "Designs daily activities, swaps outdoor for indoor if weather is poor, and finds alternatives when bookings fail.",
+        "prompt_file": "stage4/itinerary_agent.md",
+        "tools": [
+          "place_info_tool",
+          "transit_time_tool",
+          "weather_tool"
+        ]
+      },
+      {
+        "name": "booking_agent",
+        "description": "Handles simulated hotel and flight reservations, returning booking references or reporting failures.",
+        "prompt_file": "stage4/booking_agent.md",
+        "tools": [
+          "hotel_search_tool",
+          "flight_search_tool"
+        ]
+      },
+      {
+        "name": "local_info_agent",
+        "description": "Provides local tips, safety information, opening hours, events, and currency conversion.",
+        "prompt_file": "stage4/local_info_agent.md",
+        "tools": [
+          "local_events_tool",
+          "currency_tool",
+          "budget_estimator_tool"
+        ]
+      }
+    ]
+  }
+]

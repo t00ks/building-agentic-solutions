@@ -1,0 +1,54 @@
+[
+  {
+    "name": "trip_supervisor",
+    "description": "Top-level coordinator and QA agent. Broadcasts tasks to specialist agents, validates combined outputs against budget, safety, and schema constraints, requests rework when needed, and delivers the final plan via notification.",
+    "prompt_file": "stage5/trip_supervisor.md",
+    "tools": [
+      "validator_tool"
+    ],
+    "children": [
+      {
+        "name": "itinerary_agent",
+        "description": "Designs daily activities using place info, weather forecasts, transit times, and map routes. Adjusts plans based on supervisor feedback.",
+        "prompt_file": "stage5/itinerary_agent.md",
+        "tools": [
+          "place_info_tool",
+          "transit_time_tool",
+          "weather_tool",
+          "map_route_tool"
+        ]
+      },
+      {
+        "name": "booking_agent",
+        "description": "Handles all reservations including flights, hotels, and restaurants. Uses the booking API simulator for confirmations and cancellations.",
+        "prompt_file": "stage5/booking_agent.md",
+        "tools": [
+          "flight_search_tool",
+          "hotel_search_tool",
+          "restaurant_search_tool",
+          "booking_api_simulator"
+        ]
+      },
+      {
+        "name": "local_info_agent",
+        "description": "Provides local tips, restaurant suggestions, safety information, embassy contacts, events, and user preference lookups.",
+        "prompt_file": "stage5/local_info_agent.md",
+        "tools": [
+          "local_events_tool",
+          "restaurant_search_tool",
+          "user_pref_store",
+          "emergency_info_tool"
+        ]
+      },
+      {
+        "name": "budget_agent",
+        "description": "Optimises spending and tracks costs across the trip. Estimates per-stop budgets, converts currencies, and ensures the overall plan stays within the user's budget.",
+        "prompt_file": "stage5/budget_agent.md",
+        "tools": [
+          "budget_estimator_tool",
+          "currency_tool"
+        ]
+      }
+    ]
+  }
+]

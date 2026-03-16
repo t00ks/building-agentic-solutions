@@ -1,4 +1,4 @@
-﻿using ExcelToolsMcp.Extensions;
+﻿using McpServer.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 

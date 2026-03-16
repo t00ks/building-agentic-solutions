@@ -1,0 +1,13 @@
+[
+  {
+    "name": "itinerary_agent",
+    "description": "Plans day-trip itineraries using multiple tools to check places, transit times, budget, and weather. Selects and combines tools to respect user constraints such as budget limits, weather avoidance, and walking preferences.",
+    "prompt_file": "stage2/itinerary_agent.md",
+    "tools": [
+      "place_info_tool",
+      "transit_time_tool",
+      "budget_estimator_tool",
+      "weather_tool"
+    ]
+  }
+]

@@ -1,0 +1,31 @@
+[
+  {
+    "name": "itinerary_agent",
+    "description": "Composes day-by-day itineraries, queries LocalInfoAgent for local tips and BookingAgent for accommodation after choosing hotels.",
+    "prompt_file": "stage3/itinerary_agent.md",
+    "tools": [
+      "place_info_tool",
+      "transit_time_tool",
+      "weather_tool"
+    ]
+  },
+  {
+    "name": "booking_agent",
+    "description": "Handles simulated hotel and flight reservations, returning booking references for the itinerary.",
+    "prompt_file": "stage3/booking_agent.md",
+    "tools": [
+      "hotel_search_tool",
+      "flight_search_tool"
+    ]
+  },
+  {
+    "name": "local_info_agent",
+    "description": "Provides local tips, safety information, opening hours, events, and currency conversion for the destination.",
+    "prompt_file": "stage3/local_info_agent.md",
+    "tools": [
+      "local_events_tool",
+      "currency_tool",
+      "budget_estimator_tool"
+    ]
+  }
+]
