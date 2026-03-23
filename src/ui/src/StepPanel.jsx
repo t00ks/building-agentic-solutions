@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react'
+import AgentDiagram from './AgentDiagram'
 
 const SUPERVISOR = 'trip_supervisor'
 
@@ -309,6 +310,8 @@ export default function StepPanel({ step }) {
           </span>
         )}
       </div>
+
+      <AgentDiagram step={step} />
 
       {showToolPanel ? (
         <div className="grid min-h-0 flex-1 grid-cols-2 gap-4">
