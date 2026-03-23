@@ -17,9 +17,9 @@ function AgentCard({ agent, content }) {
 
   if (!parsed) {
     return (
-      <div className="rounded-lg border border-slate-200 bg-white p-4">
-        <h4 className="mb-2 text-sm font-semibold text-slate-700">{agent}</h4>
-        <pre className="whitespace-pre-wrap text-sm text-slate-600">
+      <div className="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+        <h4 className="mb-2 text-sm font-semibold text-slate-700 dark:text-slate-300">{agent}</h4>
+        <pre className="whitespace-pre-wrap text-sm text-slate-600 dark:text-slate-400">
           {content}
         </pre>
       </div>
@@ -30,8 +30,8 @@ function AgentCard({ agent, content }) {
   const entries = Object.entries(rest)
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4">
-      <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-700">
+    <div className="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+      <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
         <span className="inline-block rounded bg-indigo-600 px-2 py-0.5 text-xs font-semibold text-white">
           {agent}
         </span>
@@ -56,7 +56,7 @@ function AgentField({ label, value }) {
         <dt className="text-xs font-medium uppercase tracking-wide text-slate-400">
           {title}
         </dt>
-        <dd className="mt-0.5 text-sm text-slate-700">{String(value)}</dd>
+        <dd className="mt-0.5 text-sm text-slate-700 dark:text-slate-300">{String(value)}</dd>
       </div>
     )
   }
@@ -70,7 +70,7 @@ function AgentField({ label, value }) {
             {title}
           </dt>
           <dd className="mt-1">
-            <ul className="list-inside list-disc space-y-0.5 text-sm text-slate-700">
+            <ul className="list-inside list-disc space-y-0.5 text-sm text-slate-700 dark:text-slate-300">
               {value.map((v, i) => (
                 <li key={i}>{v}</li>
               ))}
@@ -89,23 +89,23 @@ function AgentField({ label, value }) {
           {value.map((item, i) => (
             <div
               key={i}
-              className="rounded border border-slate-100 bg-slate-50 p-2"
+              className="rounded border border-slate-100 bg-slate-50 p-2 dark:border-slate-600 dark:bg-slate-700/50"
             >
               {typeof item === 'object' && item !== null ? (
                 <div className="space-y-1">
                   {Object.entries(item).map(([k, v]) => (
                     <div key={k} className="flex gap-2 text-xs">
-                      <span className="font-medium text-slate-500">
+                      <span className="font-medium text-slate-500 dark:text-slate-400">
                         {k.replace(/_/g, ' ')}:
                       </span>
-                      <span className="text-slate-700">
+                      <span className="text-slate-700 dark:text-slate-300">
                         {typeof v === 'object' ? JSON.stringify(v) : String(v)}
                       </span>
                     </div>
                   ))}
                 </div>
               ) : (
-                <span className="text-sm text-slate-700">
+                <span className="text-sm text-slate-700 dark:text-slate-300">
                   {JSON.stringify(item)}
                 </span>
               )}
@@ -122,14 +122,14 @@ function AgentField({ label, value }) {
         <dt className="mb-1 text-xs font-medium uppercase tracking-wide text-slate-400">
           {title}
         </dt>
-        <dd className="rounded border border-slate-100 bg-slate-50 p-2">
+        <dd className="rounded border border-slate-100 bg-slate-50 p-2 dark:border-slate-600 dark:bg-slate-700/50">
           <div className="space-y-1">
             {Object.entries(value).map(([k, v]) => (
               <div key={k} className="flex gap-2 text-xs">
-                <span className="font-medium text-slate-500">
+                <span className="font-medium text-slate-500 dark:text-slate-400">
                   {k.replace(/_/g, ' ')}:
                 </span>
-                <span className="text-slate-700">
+                <span className="text-slate-700 dark:text-slate-300">
                   {typeof v === 'object' ? JSON.stringify(v) : String(v)}
                 </span>
               </div>
@@ -277,7 +277,7 @@ export default function StepPanel({ step }) {
       <div className="shrink-0">
         <label
           htmlFor={`query-${step}`}
-          className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500"
+          className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
         >
           Query
         </label>
@@ -287,7 +287,7 @@ export default function StepPanel({ step }) {
           onChange={(e) => setQuery(e.target.value)}
           disabled={running}
           rows={2}
-          className="w-full resize-none rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder-slate-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:bg-slate-100 disabled:text-slate-500"
+          className="w-full resize-none rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder-slate-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:bg-slate-100 disabled:text-slate-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:disabled:bg-slate-700 dark:disabled:text-slate-500"
         />
       </div>
 
@@ -304,7 +304,7 @@ export default function StepPanel({ step }) {
         </button>
 
         {running && (
-          <span className="flex items-center gap-2 text-sm text-slate-500">
+          <span className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
             <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-green-500" />
             {activeAgent ? `Agent: ${activeAgent}` : 'Streaming…'}
           </span>
@@ -317,20 +317,20 @@ export default function StepPanel({ step }) {
         <div className="grid min-h-0 flex-1 grid-cols-2 gap-4">
           {/* Left column: supervisor output + agent cards */}
           <div className="flex min-h-0 flex-col gap-1">
-            <h3 className="shrink-0 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <h3 className="shrink-0 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
               Output
             </h3>
-            <div className="min-h-0 flex-1 space-y-3 overflow-auto rounded-lg border border-slate-200 bg-slate-50 p-3">
+            <div className="min-h-0 flex-1 space-y-3 overflow-auto rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/50">
 
             {/* Supervisor streamed output (always on top when active) */}
             {output && (
-              <div className="rounded-lg border border-slate-200 bg-white p-4">
-                <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+              <div className="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+                <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
                   <span className="inline-block rounded bg-emerald-600 px-2 py-0.5 text-xs font-semibold text-white">
                     Trip Supervisor
                   </span>
                 </h4>
-                <div className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700">
+                <div className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700 dark:text-slate-300">
                   {output}
                 </div>
               </div>
@@ -338,7 +338,7 @@ export default function StepPanel({ step }) {
 
             {/* Buffering indicator for non-supervisor agent */}
             {running && activeAgent && !isSupervisor(activeAgent) && (
-              <div className="flex items-center gap-2 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-3 text-sm text-slate-500">
+              <div className="flex items-center gap-2 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-3 text-sm text-slate-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-400">
                 <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-amber-400" />
                 <span className="font-medium">{activeAgent}</span> is working…
               </div>
@@ -350,8 +350,8 @@ export default function StepPanel({ step }) {
             ))}
 
             {!output && agentOutputs.length === 0 && !running && (
-              <div className="rounded-lg border border-slate-200 bg-white p-4">
-                <span className="text-sm text-slate-400">
+              <div className="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+                <span className="text-sm text-slate-400 dark:text-slate-500">
                   Press &quot;Run Step {step}&quot; to start
                 </span>
               </div>
@@ -361,10 +361,10 @@ export default function StepPanel({ step }) {
 
           {/* Right column: tool calls */}
           <div className="flex min-h-0 flex-col gap-1">
-            <h3 className="shrink-0 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <h3 className="shrink-0 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
               Tool Calls
             </h3>
-            <div className="min-h-0 flex-1 overflow-auto rounded-lg border border-slate-200 bg-slate-900 p-4 shadow-inner">
+            <div className="min-h-0 flex-1 overflow-auto rounded-lg border border-slate-200 bg-slate-900 p-4 shadow-inner dark:border-slate-700">
               {toolCalls.length === 0 ? (
                 <span className="text-sm text-slate-500">
                   No tool calls yet
@@ -417,7 +417,7 @@ export default function StepPanel({ step }) {
         </div>
       ) : (
         /* Step 1: single output panel */
-        <pre className="min-h-0 flex-1 overflow-auto whitespace-pre-wrap rounded-lg border border-slate-200 bg-white p-4 font-mono text-sm text-slate-800 shadow-inner">
+        <pre className="min-h-0 flex-1 overflow-auto whitespace-pre-wrap rounded-lg border border-slate-200 bg-white p-4 font-mono text-sm text-slate-800 shadow-inner dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
           {output || (
             <span className="text-slate-400">
               Press &quot;Run Step {step}&quot; to start

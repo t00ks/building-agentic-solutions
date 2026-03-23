@@ -97,8 +97,8 @@ const STEP_CONFIGS = {
 function AgentNode({ name, tools, variant = 'agent' }) {
   const colors =
     variant === 'supervisor'
-      ? 'border-emerald-200 bg-emerald-50'
-      : 'border-indigo-200 bg-indigo-50'
+      ? 'border-emerald-200 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-900/30'
+      : 'border-indigo-200 bg-indigo-50 dark:border-indigo-700 dark:bg-indigo-900/30'
   const badgeColor =
     variant === 'supervisor' ? 'bg-emerald-600' : 'bg-indigo-600'
 
@@ -116,7 +116,7 @@ function AgentNode({ name, tools, variant = 'agent' }) {
           {tools.map((tool) => (
             <span
               key={tool}
-              className="whitespace-nowrap rounded bg-white px-1.5 py-0.5 text-[10px] font-medium text-slate-500 ring-1 ring-slate-200"
+              className="whitespace-nowrap rounded bg-white px-1.5 py-0.5 text-[10px] font-medium text-slate-500 ring-1 ring-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:ring-slate-600"
             >
               {tool}
             </span>
@@ -130,15 +130,15 @@ function AgentNode({ name, tools, variant = 'agent' }) {
 function HArrow() {
   return (
     <div className="flex shrink-0 items-center px-1">
-      <div className="h-px w-4 bg-slate-300" />
-      <div className="h-0 w-0 border-y-[3px] border-l-[5px] border-y-transparent border-l-slate-300" />
+      <div className="h-px w-4 bg-slate-300 dark:bg-slate-600" />
+      <div className="h-0 w-0 border-y-[3px] border-l-[5px] border-y-transparent border-l-slate-300 dark:border-l-slate-600" />
     </div>
   )
 }
 
 function QueryNode() {
   return (
-    <div className="shrink-0 rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[11px] font-medium text-slate-500">
+    <div className="shrink-0 rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[11px] font-medium text-slate-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-400">
       User Query
     </div>
   )
@@ -189,7 +189,7 @@ function SupervisorDiagram({ config }) {
       </div>
 
       {/* Vertical connector from supervisor down to rail */}
-      <div className="h-5 w-px bg-slate-300" />
+      <div className="h-5 w-px bg-slate-300 dark:bg-slate-600" />
 
       {/* Children with tree connectors */}
       <div className="flex">
@@ -198,11 +198,11 @@ function SupervisorDiagram({ config }) {
             {/* Tree connector: left-rail | vertical-drop | right-rail */}
             <div className="flex h-5 w-full items-start">
               <div
-                className={`h-px flex-1 ${i > 0 ? 'bg-slate-300' : ''}`}
+                className={`h-px flex-1 ${i > 0 ? 'bg-slate-300 dark:bg-slate-600' : ''}`}
               />
-              <div className="h-full w-px shrink-0 bg-slate-300" />
+              <div className="h-full w-px shrink-0 bg-slate-300 dark:bg-slate-600" />
               <div
-                className={`h-px flex-1 ${i < arr.length - 1 ? 'bg-slate-300' : ''}`}
+                className={`h-px flex-1 ${i < arr.length - 1 ? 'bg-slate-300 dark:bg-slate-600' : ''}`}
               />
             </div>
             <AgentNode name={child.name} tools={child.tools} />
@@ -222,7 +222,7 @@ export default function AgentDiagram({ step }) {
     <div className="shrink-0">
       <button
         onClick={() => setOpen(!open)}
-        className="mb-1 flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-slate-500 hover:text-slate-700"
+        className="mb-1 flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
       >
         <span
           className={`inline-block text-[10px] transition-transform ${open ? 'rotate-90' : ''}`}
@@ -232,7 +232,7 @@ export default function AgentDiagram({ step }) {
         Architecture
       </button>
       {open && (
-        <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white px-4 py-3">
+        <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-800">
           {config.type === 'single' && <SingleDiagram config={config} />}
           {config.type === 'chain' && <ChainDiagram config={config} />}
           {config.type === 'supervisor' && (
