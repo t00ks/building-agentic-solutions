@@ -143,6 +143,9 @@ function AgentField({ label, value }) {
 }
 
 export default function StepPanel({ step }) {
+  const [query, setQuery] = useState(
+    'Plan and book a 2-day sightseeing itinerary in Lisbon with 3 stops for a family of 4 travelers who like coffee and architecture.'
+  )
   const [output, setOutput] = useState('')
   const [agentOutputs, setAgentOutputs] = useState([])
   const [toolCalls, setToolCalls] = useState([])
@@ -170,7 +173,11 @@ export default function StepPanel({ step }) {
 
     if (step === 1) {
       try {
-        const res = await fetch(`/step1`)
+        const res = await fetch(`/step1`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query }),
+        })
         const messages = await res.json()
         const text = messages
           .map((m) => {
@@ -196,7 +203,12 @@ export default function StepPanel({ step }) {
     abortRef.current = ctrl
 
     try {
-      const res = await fetch(`/step${step}`, { signal: ctrl.signal })
+      const res = await fetch(`/step${step}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query }),
+        signal: ctrl.signal,
+      })
       const reader = res.body.getReader()
       const decoder = new TextDecoder()
 
@@ -218,7 +230,7 @@ export default function StepPanel({ step }) {
               const data = JSON.parse(line.slice(6))
               if (currentEvent === 'response' && data.value) {
                 const currentAgent = agentBufferRef.current.agent
-                if (isSupervisor(currentAgent)) {
+                if (step === 2 || isSupervisor(currentAgent)) {
                   setOutput((prev) => prev + data.value)
                 } else {
                   agentBufferRef.current.chunks.push(data.value)
@@ -250,7 +262,7 @@ export default function StepPanel({ step }) {
       setActiveAgent(null)
       abortRef.current = null
     }
-  }, [step, flushAgentBuffer])
+  }, [step, query, flushAgentBuffer])
 
   const stop = useCallback(() => {
     abortRef.current?.abort()
@@ -260,6 +272,24 @@ export default function StepPanel({ step }) {
 
   return (
     <div className="flex h-full flex-col gap-3">
+      {/* Query input */}
+      <div className="shrink-0">
+        <label
+          htmlFor={`query-${step}`}
+          className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500"
+        >
+          Query
+        </label>
+        <textarea
+          id={`query-${step}`}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          disabled={running}
+          rows={2}
+          className="w-full resize-none rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder-slate-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:bg-slate-100 disabled:text-slate-500"
+        />
+      </div>
+
       <div className="flex shrink-0 items-center gap-3">
         <button
           onClick={running ? stop : run}

@@ -4,8 +4,8 @@ import StepPanel from './StepPanel'
 const STEPS = [1, 2, 3, 4, 5]
 
 const STEP_LABELS = {
-  1: 'Single Agent',
-  2: 'Agent + Tools',
+  1: 'Agent + 1 Tool',
+  2: 'Agents + Tools (MCP & Streaming)',
   3: 'Multi-Agent',
   4: 'Supervisor',
   5: 'Full Orchestration',

@@ -16,7 +16,7 @@ from typing import Annotated, Any
 from langchain.agents import AgentState, create_agent
 from langchain.agents.middleware import ModelCallLimitMiddleware, ModelRequest, dynamic_prompt
 from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.messages import AIMessageChunk, HumanMessage
+from langchain_core.messages import AIMessageChunk, BaseMessage, HumanMessage
 from langchain_core.tools import BaseTool, StructuredTool, Tool
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 from langgraph.config import get_stream_writer
@@ -112,7 +112,9 @@ class Agent:
         )
 
     @classmethod
-    async def create(cls, agent_config: AgentConfig, tools_service: ToolsService, checkpointer: AsyncPostgresSaver) -> "Agent":
+    async def create(
+        cls, agent_config: AgentConfig, tools_service: ToolsService, checkpointer: AsyncPostgresSaver | None = None
+    ) -> "Agent":
         """
         Asynchronously creates and configures an Agent instance with child agents.
 
@@ -125,7 +127,7 @@ class Agent:
         Args:
             agent_config (AgentConfig): Configuration for the multi-agent system.
             tools_service (ToolsService): Service for managing and filtering tools.
-
+            checkpointer (AsyncPostgresSaver | None): Optional checkpointer for saving agent state.
         Returns:
             MultiAgent: A fully configured and ready-to-use multi-agent instance.
 
@@ -158,7 +160,7 @@ class Agent:
 
         return self._prompt
 
-    async def _build_workflow(self, tools_service: ToolsService, checkpointer: AsyncPostgresSaver):
+    async def _build_workflow(self, tools_service: ToolsService, checkpointer: AsyncPostgresSaver | None = None) -> None:
         """
         Build the agent workflow by creating child agents (if any) and supervisor.
 
@@ -208,7 +210,8 @@ class Agent:
 
     async def stream(
         self,
-        query: str,
+        query: str | None = None,
+        messages: list[BaseMessage] | None = None,
         context: dict[str, Any] | None = None,
         debug: bool = False,
     ) -> AsyncIterator[AgentEvent]:
@@ -219,7 +222,8 @@ class Agent:
         state updates, and custom events from child agents.
 
         Args:
-            query: The user query to process.
+            query: The user query to process (mutually exclusive with messages).
+            messages: A list of messages to send (mutually exclusive with query).
             context: Optional context dict to pass to the agent graph.
             debug: Whether to emit debug events.
 
@@ -232,12 +236,15 @@ class Agent:
         if self._graph is None:
             raise AgentProcessingError("agent not built, check logs for errors")
 
+        if messages is None:
+            messages = [HumanMessage(content=query or "")]
+
         try:
             final_response: str = ""
             current_agent: str = self.agent_config.name
 
             async for _meta, mode, message_chunk in self._graph.astream(
-                {"messages": [HumanMessage(content=query)]},
+                {"messages": messages},
                 stream_mode=["messages", "updates", "custom"],
                 context=context or {},
                 subgraphs=True,
