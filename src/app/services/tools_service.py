@@ -23,6 +23,7 @@ from core.exceptions import AgentConfigurationError, AgentProcessingError, Agent
 from core.logging_config import get_logger
 from services.session_context import CURRENT_MCP_SESSION
 from tools.tool_update import ToolUpdate
+from tools.write_up_tool import write_up_tool
 
 
 class ToolsService:
@@ -56,9 +57,10 @@ class ToolsService:
         self.config = get_config()
 
         self._tools: dict[str, Any] = {
+            "write_up_tool": write_up_tool,
         }
 
-        self._mcp_client = MultiServerMCPClient({"populationTools": {"url": self.config.services.mcp_server_url, "transport": "streamable_http"}})
+        self._mcp_client = MultiServerMCPClient({"travelAgentTools": {"url": self.config.services.mcp_server_url, "transport": "streamable_http"}})
 
     @property
     def tools(self):
@@ -97,7 +99,7 @@ class ToolsService:
         """
 
         try:
-            async with self._mcp_client.session("populationTools") as session:
+            async with self._mcp_client.session("travelAgentTools") as session:
                 raw_tools = await load_mcp_tools(session)
 
             for tool in raw_tools:

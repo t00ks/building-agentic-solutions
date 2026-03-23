@@ -73,24 +73,3 @@ def get_azure_openai_llm():
         temperature=config.llm.agent_temperature,
         max_tokens=1024,
     )
-
-
-@lru_cache(maxsize=1)
-def get_voice_client():
-    if config.hyperscaler == "AZURE":
-        try:
-            # Use custom endpoint if provided, otherwise construct from region
-            if not config.azure.speech_endpoint:
-                raise AgentResourceError(
-                    "Azure Speech endpoint not configured. Set AZURE_SPEECH_ENDPOINT or AZURE_OPENAI_MODEL_ENDPOINT environment variable."
-                )
-
-            return AzureOpenAI(
-                api_key=config.azure.speech_api_key,
-                api_version="2024-12-01-preview",
-                azure_endpoint=config.azure.speech_endpoint,
-            )
-        except Exception as e:
-            raise AgentResourceError(f"Failed to initialize Azure OpenAI client for speech: {e}") from e
-    else:
-        raise AgentResourceError(f"Voice service not supported for hyperscaler: {config.hyperscaler}")

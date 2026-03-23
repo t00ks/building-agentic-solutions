@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Text.Json;
 using McpServer.Models;
 using ModelContextProtocol.Server;
 
@@ -71,10 +72,22 @@ public class Tools : ITool
     [Description("Provide a simple budget estimate given a list of items/costs or a rough itinerary.")]
     [McpServerTool]
     public BudgetEstimate BudgetEstimatorTool(
-        [Description("Map of category to number of visits, for example museum=2.")] Dictionary<string, int> visitsPerCategory,
+        [Description("JSON string mapping category to number of visits. Expected schema: {\"category\": count, ...} where category is a string and count is an integer. Example: {\"museum\": 2, \"restaurant\": 3, \"transport\": 4}. Valid categories: museum, attraction, restaurant, transport.")] string visitsPerCategoryJson,
         [Description("Estimated meal cost per person in EUR.")] decimal perMealEur = 15m)
     {
-        // visitsPerCategory: e.g., {"museum":2, "restaurant":3}
+        Dictionary<string, int> visitsPerCategory;
+        try
+        {
+            visitsPerCategory = JsonSerializer.Deserialize<Dictionary<string, int>>(visitsPerCategoryJson)
+                ?? throw new ArgumentException("Deserialized result was null.");
+        }
+        catch (JsonException ex)
+        {
+            throw new ArgumentException(
+                $"Failed to parse visitsPerCategoryJson. Expected a JSON object mapping category names (string) to visit counts (integer). " +
+                $"Example: {{\"museum\": 2, \"restaurant\": 3}}. Error: {ex.Message}");
+        }
+
         var breakdown = new Dictionary<string, decimal>();
         decimal total = 0m;
 
@@ -273,9 +286,21 @@ public class Tools : ITool
     public BookingResult BookingApiSimulator(
         [Description("Booking provider name.")] string provider,
         [Description("Item type to book, for example hotel, flight, or restaurant.")] string itemType,
-        [Description("Booking details as key value pairs.")] Dictionary<string, string> details)
+        [Description("JSON string of booking details as key-value pairs. Expected schema: {\"key\": \"value\", ...} where both keys and values are strings. Example for hotel: {\"hotelName\": \"Hotel A\", \"checkIn\": \"2025-06-01\", \"checkOut\": \"2025-06-03\", \"guestName\": \"Jane Doe\"}. Example for flight: {\"flightNumber\": \"AM101\", \"date\": \"2025-06-01\", \"passengerName\": \"Jane Doe\"}.")] string detailsJson)
     {
-        // details contains things like "hotelId","checkIn","guestName" etc.
+        Dictionary<string, string> details;
+        try
+        {
+            details = JsonSerializer.Deserialize<Dictionary<string, string>>(detailsJson)
+                ?? throw new ArgumentException("Deserialized result was null.");
+        }
+        catch (JsonException ex)
+        {
+            throw new ArgumentException(
+                $"Failed to parse detailsJson. Expected a JSON object with string keys and string values. " +
+                $"Example: {{\"hotelName\": \"Hotel A\", \"checkIn\": \"2025-06-01\"}}. Error: {ex.Message}");
+        }
+
         bool success = _rng.NextDouble() > 0.15; // 85% success
         if (success)
         {

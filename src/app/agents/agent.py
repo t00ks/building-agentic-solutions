@@ -69,6 +69,7 @@ class Agent:
 
         self._temperature = self.agent_config.temperature or self.config.llm.agent_temperature
         self._llm_run_limit: int = self.agent_config.llm_run_limit or self.config.llm.agent_run_limit
+        self._recursion_limit: int = 75
 
         self._prompt: str | None = None
         self._llm: BaseChatModel | None = None
@@ -91,13 +92,11 @@ class Agent:
 
         async def arun(
             request: Annotated[str, "A description of the users request"],
-            conversation_history: Annotated[str | None, "A copy of the conversation history so far if one is present"],
         ) -> AgentState:
             writer = get_stream_writer()
             writer(AgentUpdate(agent_name=self.agent_config.name, agent_event=AgentUpdateEvent.START))
 
-            messages = [{"role": "user", "content": conversation_history}] if conversation_history else []
-            messages.append({"role": "user", "content": request})
+            messages = [{"role": "user", "content": request}]
 
             response = await self._graph.ainvoke({"messages": messages})
 
@@ -205,7 +204,7 @@ class Agent:
             middleware=[get_system_prompt, ModelCallLimitMiddleware(run_limit=self._llm_run_limit)],
             name=self.agent_config.name,
             checkpointer=checkpointer,
-        )
+        ).with_config(recursion_limit=self._recursion_limit)
 
     async def stream(
         self,

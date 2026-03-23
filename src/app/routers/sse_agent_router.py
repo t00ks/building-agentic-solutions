@@ -79,10 +79,10 @@ def create_step_router(endpoint: str, config_filename: str) -> APIRouter:
                     agent_config = load_agent_config(config_filename)
                     agent = await Agent.create(agent_config=agent_config, tools_service=tools_service, checkpointer=None)
 
-                    async with tools_service._mcp_client.session("populationTools") as session:
-                        async with SessionContext(session, "default"):
+                    async with tools_service._mcp_client.session("travelAgentTools") as session:
+                        async with SessionContext(session):
                             async for event in agent.stream(
-                                query="Plan a 1-day sightseeing itinerary in Lisbon with 3 stops for a solo traveler who likes coffee and architecture.",
+                                query="Plan and book a 2-day sightseeing itinerary in Lisbon with 3 stops for a family of 4 travelers who like coffee and architecture.",
                                 debug=True,
                             ):
                                 await queue.put(("event", event))

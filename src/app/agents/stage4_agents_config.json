@@ -4,8 +4,7 @@
     "description": "Supervises the full trip planning workflow. Assigns tasks to specialist agents, validates outputs against budget and safety constraints, and requests rework when validation fails.",
     "prompt_file": "stage4/trip_supervisor.md",
     "tools": [
-      "validator_tool",
-      "retry_tool"
+      "validator_tool"
     ],
     "children": [
       {

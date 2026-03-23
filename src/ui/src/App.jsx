@@ -15,18 +15,18 @@ function App() {
   const [activeStep, setActiveStep] = useState(1)
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-5xl px-4 py-4">
+    <div className="flex h-screen flex-col overflow-hidden bg-slate-50">
+      <header className="shrink-0 border-b border-slate-200 bg-white">
+        <div className="mx-auto max-w-7xl px-4 py-4">
           <h1 className="text-xl font-semibold tracking-tight text-slate-900">
             Agentic Framework Demo
           </h1>
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-4 py-6">
+      <main className="mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col px-4 py-6">
         {/* Tabs */}
-        <nav className="mb-6 flex gap-1 rounded-lg border border-slate-200 bg-white p-1">
+        <nav className="mb-4 flex shrink-0 gap-1 rounded-lg border border-slate-200 bg-white p-1">
           {STEPS.map((step) => (
             <button
               key={step}
@@ -46,7 +46,16 @@ function App() {
         </nav>
 
         {/* Panel */}
-        <StepPanel key={activeStep} step={activeStep} />
+        <div className="min-h-0 flex-1">
+          {STEPS.map((step) => (
+            <div
+              key={step}
+              className={`h-full ${activeStep === step ? '' : 'hidden'}`}
+            >
+              <StepPanel step={step} />
+            </div>
+          ))}
+        </div>
       </main>
     </div>
   )

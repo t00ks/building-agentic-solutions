@@ -4,7 +4,8 @@
     "description": "Top-level coordinator and QA agent. Broadcasts tasks to specialist agents, validates combined outputs against budget, safety, and schema constraints, requests rework when needed, and delivers the final plan via notification.",
     "prompt_file": "stage5/trip_supervisor.md",
     "tools": [
-      "validator_tool"
+      "validator_tool",
+      "write_up_tool"
     ],
     "children": [
       {

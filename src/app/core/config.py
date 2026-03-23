@@ -80,7 +80,6 @@ class LLMConfig:
 
     orchestrator_temperature: float
     agent_temperature: float
-    orchestrator_run_limit: int
     agent_run_limit: int
 
 
@@ -157,8 +156,7 @@ class AppConfig:
         # Load temperatures
         orchestrator_temperature = float(os.getenv("ORCHESTRATOR_TEMPERATURE", "0.0"))
         agent_temperature = float(os.getenv("AGENT_TEMPERATURE", "0.3"))
-        orchestrator_run_limit = int(os.getenv("ORCHESTRATOR_RUN_LIMIT", 5))
-        agent_run_limit = int(os.getenv("AGENT_RUN_LIMIT", 5))
+        agent_run_limit = int(os.getenv("AGENT_RUN_LIMIT", 35))
 
         # Load logging configuration
         log_level = os.getenv("LOG_LEVEL", "INFO").upper()
@@ -254,7 +252,6 @@ class AppConfig:
             llm=LLMConfig(
                 orchestrator_temperature=orchestrator_temperature,
                 agent_temperature=agent_temperature,
-                orchestrator_run_limit=orchestrator_run_limit,
                 agent_run_limit=agent_run_limit,
             ),
             hyperscaler=hyperscaler,
