@@ -1,6 +1,14 @@
 import { useState, useRef, useCallback } from 'react'
 import AgentDiagram from './AgentDiagram'
 
+const DEFAULT_QUERIES = {
+  1: 'What are the top things to see in Lisbon for someone who loves architecture and coffee?',
+  2: 'Plan a day trip in Lisbon for a family of 4 with a €200 budget. We love architecture and want to avoid rain.',
+  3: 'Plan and book a 2-day sightseeing itinerary in Lisbon with 3 stops for a family of 4 travelers who like coffee and architecture.',
+  4: 'Plan and book a 2-day sightseeing itinerary in Lisbon with 3 stops for a family of 4 travelers who like coffee and architecture. Budget is €500.',
+  5: 'Plan and book a 3-day Lisbon trip for a family of 4 with a €1000 budget. We love architecture, coffee, and local food. Include flights, hotels, and restaurant reservations.',
+}
+
 const SUPERVISOR = 'trip_supervisor'
 
 function isSupervisor(agent) {
@@ -144,9 +152,7 @@ function AgentField({ label, value }) {
 }
 
 export default function StepPanel({ step }) {
-  const [query, setQuery] = useState(
-    'Plan and book a 2-day sightseeing itinerary in Lisbon with 3 stops for a family of 4 travelers who like coffee and architecture.'
-  )
+  const [query, setQuery] = useState(DEFAULT_QUERIES[step] || '')
   const [output, setOutput] = useState('')
   const [agentOutputs, setAgentOutputs] = useState([])
   const [toolCalls, setToolCalls] = useState([])
