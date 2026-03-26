@@ -2,7 +2,7 @@ import { useState, useRef, useCallback } from 'react'
 import AgentDiagram from './AgentDiagram'
 
 const DEFAULT_QUERIES = {
-  1: 'What are the top things to see in Lisbon for someone who loves architecture and coffee?',
+  1: 'Plan a trip to Lisbon, i\'d like to see the top things for someone who loves architecture and coffee?',
   2: 'Plan a day trip in Lisbon for a family of 4 with a €200 budget. We love architecture and want to avoid rain.',
   3: 'Plan and book a 2-day sightseeing itinerary in Lisbon with 3 stops for a family of 4 travelers who like coffee and architecture.',
   4: 'Plan and book a 2-day sightseeing itinerary in Lisbon with 3 stops for a family of 4 travelers who like coffee and architecture. Budget is €500.',

@@ -41,7 +41,7 @@ For each day:
 @tool
 def write_up_tool(combined_agent_output: str) -> str:
     """Take the complete combined output from all agents and produce a polished, well-structured travel write-up."""
-    llm = get_llm()
+    llm = get_llm().bind(temperature=1)
     response = llm.invoke([
         {"role": "system", "content": WRITE_UP_SYSTEM_PROMPT},
         {"role": "user", "content": combined_agent_output},

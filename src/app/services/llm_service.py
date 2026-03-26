@@ -58,7 +58,7 @@ def get_bedrock_llm() -> ChatBedrockConverse:
         model=config.aws.model_id,
         region_name=config.aws.region,
         temperature=config.llm.agent_temperature,
-        max_tokens=2048,
+        max_tokens=4096,
         client=client,
     )
 
@@ -71,5 +71,5 @@ def get_azure_openai_llm():
         azure_deployment=config.azure.model_deployment,
         api_version="2024-02-01",
         temperature=config.llm.agent_temperature,
-        max_tokens=2048,
+        max_tokens=4096,
     )
